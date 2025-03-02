@@ -1,0 +1,77 @@
+rules:
+  - id: sensitive-data
+    patterns:
+      - pattern: /.*(password|secret|token|key|api[_-]?key|credentials?|auth_token)[\s]*[=:]\s*['"][^'"]*['"`].*/
+    message: "🚨 Possible sensitive data exposure!"
+    languages: [python, javascript]
+    severity: ERROR
+
+  - id: sql-injection
+    patterns:
+      - pattern: /.*(\$\{.*\}.*(?:SELECT|INSERT|UPDATE|DELETE)|(?:SELECT|INSERT|UPDATE|DELETE).*\+\s*['"]).*/
+    message: "🚨 Potential SQL Injection vulnerability!"
+    languages: [python, javascript]
+    severity: ERROR
+
+  - id: command-injection
+    patterns:
+      - pattern: /.*(eval\s*\(|exec\s*\(|execSync|spawn\s*\(|fork\s*\(|child_process|shelljs|\.exec\(.*\$\{).*/
+    message: "🚨 Potential command injection risk!"
+    languages: [python, javascript, shell]
+    severity: ERROR
+
+  - id: insecure-config
+    patterns:
+      - pattern: /.*(allowAll|disableSecurity|noValidation|validateRequest:\s*false|security:\s*false).*/
+    message: "⚠️ Potentially insecure configuration!"
+    languages: [python, javascript, yaml]
+    severity: WARNING
+
+  - id: xss-vulnerability
+    patterns:
+      - pattern: /.*(innerHTML|outerHTML|document\.write|eval\(.*\$\{|dangerouslySetInnerHTML).*/
+    message: "🚨 Potential XSS vulnerability!"
+    languages: [javascript]
+    severity: ERROR
+
+  - id: unsafe-deserialization
+    patterns:
+      - pattern: /.*(JSON\.parse\(.*\$\{|eval\(.*JSON|deserialize\(.*user|fromJSON\(.*input).*/
+    message: "🚨 Unsafe deserialization detected!"
+    languages: [python, javascript]
+    severity: ERROR
+
+  - id: hardcoded-ip
+    patterns:
+      - pattern: /.*(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).*/
+    message: "⚠️ Hardcoded IP address detected!"
+    languages: [python, javascript, yaml]
+    severity: WARNING
+
+  - id: debug-code
+    patterns:
+      - pattern: /.*(console\.log\(|debugger|alert\().*/
+    message: "⚠️ Debugging code found, remove before production!"
+    languages: [javascript]
+    severity: INFO
+
+  - id: malicious-backdoor
+    patterns:
+      - pattern: /.*(net\.createServer|http\.createServer|fs\.writeFileSync.*base64|crypto\.createCipheriv|process\.env\[[^\]]+\]).*/
+    message: "🚨 Potential backdoor detected!"
+    languages: [javascript, python]
+    severity: ERROR
+
+  - id: privilege-escalation
+    patterns:
+      - pattern: /.*(chmod\s*777|setuid\(|setgid\(|useradd|sudo|passwd|shadow|\/etc\/passwd|groupmod).*/
+    message: "🚨 Potential privilege escalation attempt!"
+    languages: [python, shell]
+    severity: ERROR
+
+  - id: obfuscated-code
+    patterns:
+      - pattern: /.*((?:[a-zA-Z0-9+/=]{40,})|(?:\\x[0-9a-fA-F]{2,})|(?:atob\(|btoa\(|Buffer\.from\()).*/
+    message: "⚠️ Obfuscated or encoded code detected!"
+    languages: [javascript, python]
+    severity: WARNING

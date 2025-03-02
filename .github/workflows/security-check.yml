@@ -20,16 +20,22 @@ jobs:
 
       - name: Fetch PR content
         run: |
+          # Get the list of modified files in the PR
           gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' > pr_files.txt
+
+          # Read files and save content to scan
+          echo "Scanning the following files:" > pr_code_to_scan.txt
           while read file; do
+            echo "Processing: $file"
             echo -e "\n\n// File: $file" >> pr_code_to_scan.txt
             cat "$file" >> pr_code_to_scan.txt
           done < pr_files.txt
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Semgrep CLI scan
-        run: semgrep scan --config=auto pr_code_to_scan.txt --json > semgrep_results.json
+      - name: Run Semgrep Scan with Custom Rules
+        run: semgrep scan --config=config/semgrep-rules.yml pr_code_to_scan.txt --json > semgrep_results.json || true
 
       - name: Post PR Comment with Results
         uses: actions/github-script@v7
